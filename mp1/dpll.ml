@@ -38,9 +38,21 @@ let coloriage = [[1;2;3];[4;5;6];[7;8;9];[10;11;12];[13;14;15];[16;17;18];[19;20
 (* simplifie : int -> int list list -> int list list 
    applique la simplification de l'ensemble des clauses en mettant
    le littéral l à vrai *)
+
+   (*
+    simplifie enlève les clauses contenant l 
+    et enlève des clauses les propositions non l.   
+   *)
 let simplifie l clauses =
-  (* à compléter *)
-  []
+  let simplify clause =
+    if List.mem l clause then None
+    else 
+      let removeNotProp prop = 
+        match clause with
+        | -l -> None
+        | x -> x
+      in filter_map removeNotProp clause
+    in filter_map simplify clauses
 
 (* solveur_split : int list list -> int list -> int list option
    exemple d'utilisation de `simplifie' *)
