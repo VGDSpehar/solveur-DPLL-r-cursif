@@ -42,14 +42,14 @@ let coloriage = [[1;2;3];[4;5;6];[7;8;9];[10;11;12];[13;14;15];[16;17;18];[19;20
    (*
     simplifie enlève les clauses contenant l 
     et enlève des clauses les propositions non l.   
-   *)
+   *) 
 let simplifie l clauses =
-  let  simplify clause =
+  let  simplifieClause clause =
     if List.mem l clause then None
     else 
-      Some(let  removeNotProp prop = if prop = -l then None else Some(prop)
+      Some(let removeNotProp prop = if prop = -l then None else Some(prop)
       in filter_map removeNotProp clause)
-    in filter_map simplify clauses
+    in filter_map simplifieClause clauses
 
 (* solveur_split : int list list -> int list -> int list option
    exemple d'utilisation de `simplifie' *)
@@ -77,9 +77,12 @@ let rec solveur_split clauses interpretation =
     - si `clauses' contient au moins une clause unitaire, retourne
       le littéral de cette clause unitaire ;
     - sinon, lève une exception `Not_found' *)
-let unitaire clauses =
-  (* à compléter *)
-  0
+let rec unitaire clauses =
+  match clauses with 
+  | [] -> raise Not_found
+  | hd::tl -> match hd with 
+    | [u] -> u
+    | _ -> unitaire tl
     
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
