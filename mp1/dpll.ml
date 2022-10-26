@@ -77,17 +77,50 @@ let rec solveur_split clauses interpretation =
     - si `clauses' contient au moins une clause unitaire, retourne
       le littéral de cette clause unitaire ;
     - sinon, lève une exception `Not_found' *)
-let unitaire clauses =
+let rec unitaire clauses =
   (* à compléter *)
-  0
-    
+  match clauses with
+  | [] -> failwith "Not_found"
+  | [lit]::r -> lit
+  | x::r -> unitaire r
+  (*|x::r -> if size x == 1 then match x with [lit] -> lit else unitaire r*)
+;;
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
       ce littéral ;
     - sinon, lève une exception `Failure "pas de littéral pur"' *)
+(*fct mem verifie si un x est dans une liste l*)
+let rec mem x l =
+  match l with 
+  |[]-> false
+  |v::r ->  if v = x then true else mem x r
+;;
+
+(*fct fuse concatene deux liste sans @ mais pas dans l'ordre car il n'est pas important*)
+let rec fuse list full =
+  match list with
+  | [] -> full
+  | x::rest -> fuse rest (x::full)
+;;
+
+(*fct conc transforme une liste de listes en liste*)
+let rec conc lists result =
+  match lists with
+  | [] -> result
+  | x::rest -> conc rest (fuse x result)
+;;
+(*fct firstNotDoublon renvoie le premier element qui n'a pas son opposé dans list*)
+let rec firstNotDoublon list full =
+  match list with
+  | [] -> failwith "pas de littéral pur"
+  | x::r -> if mem (-x) full then firstNotDoublon r full else x
+;;
+
 let pur clauses =
-  (* à compléter *)
-  0
+  let stock = conc clauses [] in 
+  firstNotDoublon stock stock
+;;
+
 
 (* solveur_dpll_rec : int list list -> int list -> int list option *)
 let rec solveur_dpll_rec clauses interpretation =
