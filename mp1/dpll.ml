@@ -82,7 +82,7 @@ let rec unitaire clauses =
   match clauses with
   | [] -> failwith "Not_found"
   | [lit]::r -> lit
-  | x::r -> unitaire r
+  | _::r -> unitaire r
   (*|x::r -> if size x == 1 then match x with [lit] -> lit else unitaire r*)
 ;;
 (* pur : int list list -> int
@@ -131,6 +131,18 @@ let rec solveur_dpll_rec clauses interpretation =
 (* let () = print_modele (solveur_dpll_rec systeme []) *)
 (* let () = print_modele (solveur_dpll_rec coloriage []) *)
 
-let () =
+(*let () =
   let clauses = Dimacs.parse Sys.argv.(1) in
   print_modele (solveur_dpll_rec clauses [])
+*)
+let rec print_list list =
+  match list with
+  |[] -> print_newline ()
+  | e::l -> print_int e ; print_string " " ; print_list l
+;;
+
+print_list (fuse [2;3;2] [5;4]);;
+let res = (conc exemple_7_2 []);;
+print_list res;;
+print_int (firstNotDoublon res res);;
+print_int (pur exemple_7_2);;
