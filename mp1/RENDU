@@ -64,7 +64,13 @@ Questions sur votre code
    quelques phrases en français comment ces fonctions auxiliaires sont
    utilisées dans votre implémentation de la fonction `pur`.
 
--> 
+->  On utilise d'abord Liste.flatten sur clauses pour créer une liste d'entier depuis
+   la liste de liste d'entier. On applique ensuite une fonction auxiliaire appelée `crible` qui va 
+   parcourir la liste d'entier, prendre le premier élément, regarder si son opposé existe 
+   dans cette liste avec `List.mem`, si non on a trouvé pur, si oui on va appeller `remove_e_from_l` 
+   sur le reste de la liste pour enlever les occurrences de l'élèment qu'on vient de regarder ainsi que les opposés 
+   se trouvant dans la liste (afin d'éviter de revérifier dans le futur les mêmes éléments, utiles si la liste est très longue 
+   et qu'on ne trouve pas de littéral pur), puis on va repasser la nouvelle liste ainsi créée au `crible` (récursivement). 
 
 ---
 
@@ -72,13 +78,22 @@ Questions sur votre code
    `solveur_split` et `solveur_dpll_rec` ont un comportement
    différent, et expliquez les différences entre ces deux fonctions.
 
-->
+-> solveur_split simplifie la liste exemple_7_2 en commençant par le littéral 1, 
+   tandis que solveur_dpll_rec commence par le littéral -2 car celui-ci est unitaire.
+   Solveur_split simplifie systématiquement par le premier littéral de la première clause, 
+   tandis que solveur_dpll_rec privilégie la simplification par les unitaires, puis par les les littéraux purs
+   on s'assure ainsi de ne pas construire des branches qui ne mènent pas au résultat. 
+   solveur_dpll_rec doit trouver les littéraux unitaires et purs car leurs simplifications ne crée pas d'embranchement, 
+   tandis que solveur_split teste toutes les possibilités, créant de nombreux embranchement, ce qui peut être long si il y a beaucoup de clauses. 
+
 
 ---
 
 5. Avez-vous d'autres remarques sur votre rendu ? (question optionnelle)
 
-**à remplir**
+-> Pour implémenter `pur` de manière plus efficace, on pourrait trouver un moyen de traverser la
+   liste savoir si c'est un littéral pur et retirer les occurences de ce littéral et son opposé dans 
+   la même boucle, pour éviter de traverser deux fois la liste.
 
 ---
 

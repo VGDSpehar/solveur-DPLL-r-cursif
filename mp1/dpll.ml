@@ -45,8 +45,10 @@ let simplifie l clauses =
     if List.mem l clause then None
     else 
       (* on enlève  non l de la clause *)
-      Some(let enlever_l lit = if lit = -l then None else Some(lit)
-      in filter_map enlever_l clause)
+      Some(let enlever_non_l lit = if lit = -l then None else Some(lit)
+      (* on appelle enlever_non_l sur chacune des propositions des clauses avec filter_map*)
+      in filter_map enlever_non_l clause)
+      (*on appelle filtrer_l sur chacune des clauses*)
     in filter_map filtrer_l clauses
 
 (* solveur_split : int list list -> int list -> int list option
@@ -77,10 +79,13 @@ let rec solveur_split clauses interpretation =
     - sinon, lève une exception `Not_found' *)
 let rec unitaire clauses =
   match clauses with
+  (*Liste vide -> pas de littéral unitaire*)
   | [] -> raise Not_found
+  (* on regarde si une liste contient un unique littéral : c'est le littéral unitaire qu'on cherche*)
   | [lit]::r -> lit
+  (*si on ne parvient pas à trouver ce littéral,
+     on appelle unitaire sur le reste de la liste, privée de la "tête"*)
   | _::tl -> unitaire tl
-;;
 
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
@@ -89,16 +94,13 @@ let rec unitaire clauses =
 
 (* remove_e_from_l : int -> list int -> list int
    enlève un entier e et son opposé d'une liste d'entier
-   est utilisée dans pur*)
-
+   est utilisée dans pur comme fonction auxiliaire*)
 let remove_e_from_l e l =
     filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
-;;
-
-exception Failure of string;;
-
+(* pur lève une exception Failure de type String*)
+exception Failure of string
 let pur clauses = 
-   (* fonction auxiliare qui passe au crible une liste : 
+   (* fonction auxiliaire qui passe au crible une liste : 
      on examine si le premier élément est pur, 
      sinon on enlève de la liste les éléments égaux et leurs opposés
      puis on recommence avec la liste privée du premier élément*)
@@ -107,7 +109,6 @@ let pur clauses =
     | [] -> raise(Failure "pas de littéral pur")
     | hd::tl -> if not(List.mem (-hd) tl) then hd else crible(remove_e_from_l hd tl)
   in crible (List.flatten clauses)
-;;
 
 (* solveur_dpll_rec : int list list -> int list -> int list option *)
 let rec solveur_dpll_rec clauses interpretation =
@@ -123,13 +124,12 @@ let rec solveur_dpll_rec clauses interpretation =
         | Some lit -> (solveur_dpll_rec (simplifie lit clauses) (lit::interpretation)) 
         (* Sinon on effectue la même opération que dans solveur_split*)
         | None -> let lit = hd (hd clauses) in
+          (*on prend le premier littéral de la première clause, on simplifie par celui ci*)
               let branche = solveur_dpll_rec (simplifie lit clauses) (lit::interpretation) in
               match branche with
+              (*si cela fonctionne, on conserve la branche, sinon on essaye avec son opposé*)
               | None -> solveur_dpll_rec (simplifie (-lit) clauses) ((-lit)::interpretation)
               | _    -> branche
-    
-
-;; 
 
 
 (* tests *)
@@ -140,10 +140,3 @@ let rec solveur_dpll_rec clauses interpretation =
 let () =
   let clauses = Dimacs.parse Sys.argv.(1) in
   print_modele (solveur_dpll_rec clauses [])
-
-(* let rec print_list list =
-  match list with
-  |[] -> print_newline ()
-  | e::l -> print_int e ; print_string " " ; print_list l
-;;
-*)
