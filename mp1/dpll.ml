@@ -84,8 +84,7 @@ let rec unitaire clauses =
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
       ce littéral ;
-    - sinon, lève une exception `Failure "pas de littéral pur"' *)
-
+    - sinon, lève une exception `Failure "pas de littéral pur"' *) 
 let pur clauses = 
    (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
@@ -107,9 +106,19 @@ let remove_e_from_l e l =
 
 (* solveur_dpll_rec : int list list -> int list -> int list option *)
 let rec solveur_dpll_rec clauses interpretation =
-  (* à compléter *)
-  None
+  (* l'ensemble vide de clauses est satisfiable *)
+  if clauses = [] then Some interpretation else
+    (* un clause vide n'est jamais satisfiable *)
+    if List.mem [] clauses then None else
+    try Some(solveur_dpll_rec (simplifie (unitaire clauses) clauses) ((unitaire clauses)::interpretation)) with
+      | _ -> try Some(solveur_dpll_rec (simplifie (pur clauses) clauses) ((pur clauses)::interpretation)) with 
+        | _ -> clauses interpretation
+;;
 
+        
+
+
+let () = print_modele (solveur_dpll_rec exemple_7_2 [])
 (* tests *)
 (* let () = print_modele (solveur_dpll_rec systeme []) *)
 (* let () = print_modele (solveur_dpll_rec coloriage []) *)
