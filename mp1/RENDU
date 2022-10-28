@@ -91,9 +91,11 @@ Questions sur votre code
 
 5. Avez-vous d'autres remarques sur votre rendu ? (question optionnelle)
 
--> Pour implémenter `pur` de manière plus efficace, on pourrait trouver un moyen de traverser la
+-> - Pour implémenter `pur` de manière plus efficace, on pourrait trouver un moyen de traverser la
    liste savoir si c'est un littéral pur et retirer les occurences de ce littéral et son opposé dans 
    la même boucle, pour éviter de traverser deux fois la liste.
+   - impossible de résoudre sudoku-9x9-god.cnf avec notre algorithme. 
+
 
 ---
 
