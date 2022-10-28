@@ -96,6 +96,7 @@ let remove_e_from_l e l =
 ;;
 
 exception Failure of string;;
+
 let pur clauses = 
    (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
@@ -103,7 +104,7 @@ let pur clauses =
      puis on recommence avec la liste privée du premier élément*)
   let rec crible liste =
     match liste with 
-    | [] -> failwith "pas de littéral pur"
+    | [] -> raise(Failure "pas de littéral pur")
     | hd::tl -> if not(List.mem (-hd) tl) then hd else crible(remove_e_from_l hd tl)
   in crible (List.flatten clauses)
 ;;
@@ -114,10 +115,13 @@ let rec solveur_dpll_rec clauses interpretation =
   if clauses = [] then Some interpretation else
     (* un clause vide n'est jamais satisfiable *)
     if List.mem [] clauses then None else
+      (*on teste d'abord pour les clauses unitaires*)
     match ( try Some(unitaire clauses) with Not_found -> None) with
       | Some lit-> solveur_dpll_rec (simplifie (lit) clauses) (lit::interpretation)
+      (* Si pas de clauses unitaires on teste pour voir si il existe un littéral pur*)
       | None -> match (try Some(pur clauses) with Failure "pas de littéral pur" -> None) with 
         | Some lit -> (solveur_dpll_rec (simplifie lit clauses) (lit::interpretation)) 
+        (* Sinon on effectue la même opération que dans solveur_split*)
         | None -> let lit = hd (hd clauses) in
               let branche = solveur_dpll_rec (simplifie lit clauses) (lit::interpretation) in
               match branche with
