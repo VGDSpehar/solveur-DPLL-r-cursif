@@ -84,10 +84,12 @@ let rec unitaire clauses =
 
 (* remove_e_from_l : int -> list int -> list int
    enlève un entier e et son opposé d'une liste d'entier*)
+
+exception Failure of string;;
+
 let remove_e_from_l e l =
   filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
 ;;
-
 let pur clauses = 
    (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
@@ -116,18 +118,12 @@ let rec solveur_dpll_rec clauses interpretation =
               | None -> solveur_dpll_rec (simplifie (-lit) clauses) ((-lit)::interpretation)
               | _    -> branche
     
-    
+
 ;; 
 
-match (try Some(unitaire exemple_7_2) with Not_found -> None) 
-with
-| Some lit -> lit
-| None -> 0;;
-        
 
-
-let () = print_modele (solveur_dpll_rec exemple_7_2 []);;
 (* tests *)
+(*let () = print_modele (solveur_dpll_rec exemple_7_2 []);;*)
 (* let () = print_modele (solveur_dpll_rec systeme []) *)
 (* let () = print_modele (solveur_dpll_rec coloriage []) *)
 
