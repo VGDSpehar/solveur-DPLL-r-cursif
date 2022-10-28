@@ -44,12 +44,12 @@ let coloriage = [[1;2;3];[4;5;6];[7;8;9];[10;11;12];[13;14;15];[16;17;18];[19;20
     et enlève des clauses les propositions non l.   
    *)
 let simplifie l clauses =
-  let  simplify clause =
+  let s clause =
     if List.mem l clause then None
     else 
-      Some(let  removeNotProp prop = if prop = -l then None else Some(prop)
+      Some(let removeNotProp prop = if prop = -l then None else Some(prop)
       in filter_map removeNotProp clause)
-    in filter_map simplify clauses
+    in filter_map s clauses
 
 (* solveur_split : int list list -> int list -> int list option
    exemple d'utilisation de `simplifie' *)
