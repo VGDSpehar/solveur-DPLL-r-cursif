@@ -38,18 +38,16 @@ let coloriage = [[1;2;3];[4;5;6];[7;8;9];[10;11;12];[13;14;15];[16;17;18];[19;20
 (* simplifie : int -> int list list -> int list list 
    applique la simplification de l'ensemble des clauses en mettant
    le littéral l à vrai *)
-
-   (*
-    simplifie enlève les clauses contenant l 
-    et enlève des clauses les propositions non l.   
-   *)
 let simplifie l clauses =
-  let s clause =
+  (* fonction pour filtrer l d'une clause*)
+  let filtrer_l clause =
+    (* on supprime la clause si elle contient l*)
     if List.mem l clause then None
     else 
-      Some(let removeNotProp prop = if prop = -l then None else Some(prop)
-      in filter_map removeNotProp clause)
-    in filter_map s clauses
+      (* on enlève  non l de la clause *)
+      Some(let enlever_l lit = if lit = -l then None else Some(lit)
+      in filter_map enlever_l clause)
+    in filter_map filtrer_l clauses
 
 (* solveur_split : int list list -> int list -> int list option
    exemple d'utilisation de `simplifie' *)
@@ -78,12 +76,10 @@ let rec solveur_split clauses interpretation =
       le littéral de cette clause unitaire ;
     - sinon, lève une exception `Not_found' *)
 let rec unitaire clauses =
-  (* à compléter *)
   match clauses with
-  | [] -> failwith "Not_found"
+  | [] -> raise Not_found
   | [lit]::r -> lit
   | _::r -> unitaire r
-  (*|x::r -> if size x == 1 then match x with [lit] -> lit else unitaire r*)
 ;;
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
@@ -119,6 +115,24 @@ let rec firstNotDoublon list full =
 let pur clauses =
   let stock = conc clauses [] in 
   firstNotDoublon stock stock
+;;
+
+ (* fonction qui passe au crible une liste : 
+     on examine si le premier élément est pur, 
+     sinon on enlève de la liste les éléments identiques et leurs opposés
+     puis on recommence avec la liste privé du premier élément*)
+let pur2 clauses = 
+  let rec crible liste =
+    match liste with 
+    | [] -> failwith "pas de littéral pur"
+    | hd::tl -> if not(List.mem (-hd) tl) then hd else crible(remove_e_from_l hd tl)
+  in crible (List.flatten clauses)
+  ;;
+
+(* int -> list int -> list int
+   enlève un entier e et son opposé d'une liste d'entier*)
+let remove_e_from_l e l =
+  filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
 ;;
 
 
