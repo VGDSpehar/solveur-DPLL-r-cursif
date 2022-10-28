@@ -79,57 +79,26 @@ let rec unitaire clauses =
   match clauses with
   | [] -> raise Not_found
   | [lit]::r -> lit
-  | _::r -> unitaire r
+  | _::tl -> unitaire tl
 ;;
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
       ce littéral ;
     - sinon, lève une exception `Failure "pas de littéral pur"' *)
-(*fct mem verifie si un x est dans une liste l*)
-let rec mem x l =
-  match l with 
-  |[]-> false
-  |v::r ->  if v = x then true else mem x r
-;;
 
-(*fct fuse concatene deux liste sans @ mais pas dans l'ordre car il n'est pas important*)
-let rec fuse list full =
-  match list with
-  | [] -> full
-  | x::rest -> fuse rest (x::full)
-;;
-
-(*fct conc transforme une liste de listes en liste*)
-let rec conc lists result =
-  match lists with
-  | [] -> result
-  | x::rest -> conc rest (fuse x result)
-;;
-(*fct firstNotDoublon renvoie le premier element qui n'a pas son opposé dans list*)
-let rec firstNotDoublon list full =
-  match list with
-  | [] -> failwith "pas de littéral pur"
-  | x::r -> if mem (-x) full then firstNotDoublon r full else x
-;;
-
-let pur clauses =
-  let stock = conc clauses [] in 
-  firstNotDoublon stock stock
-;;
-
- (* fonction qui passe au crible une liste : 
+let pur clauses = 
+   (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
-     sinon on enlève de la liste les éléments identiques et leurs opposés
-     puis on recommence avec la liste privé du premier élément*)
-let pur2 clauses = 
+     sinon on enlève de la liste les éléments égaux et leurs opposés
+     puis on recommence avec la liste privée du premier élément*)
   let rec crible liste =
     match liste with 
     | [] -> failwith "pas de littéral pur"
     | hd::tl -> if not(List.mem (-hd) tl) then hd else crible(remove_e_from_l hd tl)
   in crible (List.flatten clauses)
-  ;;
+;;
 
-(* int -> list int -> list int
+(* remove_e_from_l : int -> list int -> list int
    enlève un entier e et son opposé d'une liste d'entier*)
 let remove_e_from_l e l =
   filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
@@ -145,18 +114,13 @@ let rec solveur_dpll_rec clauses interpretation =
 (* let () = print_modele (solveur_dpll_rec systeme []) *)
 (* let () = print_modele (solveur_dpll_rec coloriage []) *)
 
-(*let () =
+let () =
   let clauses = Dimacs.parse Sys.argv.(1) in
   print_modele (solveur_dpll_rec clauses [])
-*)
-let rec print_list list =
+
+(* let rec print_list list =
   match list with
   |[] -> print_newline ()
   | e::l -> print_int e ; print_string " " ; print_list l
 ;;
-
-print_list (fuse [2;3;2] [5;4]);;
-let res = (conc exemple_7_2 []);;
-print_list res;;
-print_int (firstNotDoublon res res);;
-print_int (pur exemple_7_2);;
+*)
