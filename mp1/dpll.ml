@@ -82,14 +82,20 @@ let rec unitaire clauses =
   | _::tl -> unitaire tl
 ;;
 
-(* remove_e_from_l : int -> list int -> list int
-   enlève un entier e et son opposé d'une liste d'entier*)
+(* pur : int list list -> int
+    - si `clauses' contient au moins un littéral pur, retourne
+      ce littéral ;
+    - sinon, lève une exception `Failure "pas de littéral pur"' *)
 
-exception Failure of string;;
+(* remove_e_from_l : int -> list int -> list int
+   enlève un entier e et son opposé d'une liste d'entier
+   est utilisée dans pur*)
 
 let remove_e_from_l e l =
-  filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
+    filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
 ;;
+
+exception Failure of string;;
 let pur clauses = 
    (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
