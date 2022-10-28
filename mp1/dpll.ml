@@ -80,17 +80,14 @@ let rec unitaire clauses =
   | [] -> raise Not_found
   | [lit]::r -> lit
   | _::tl -> unitaire tl
-
 ;;
 
+(* remove_e_from_l : int -> list int -> list int
+   enlève un entier e et son opposé d'une liste d'entier*)
 let remove_e_from_l e l =
   filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
 ;;
 
-(* pur : int list list -> int
-    - si `clauses' contient au moins un littéral pur, retourne
-      ce littéral ;
-    - sinon, lève une exception `Failure "pas de littéral pur"' *) 
 let pur clauses = 
    (* fonction auxiliare qui passe au crible une liste : 
      on examine si le premier élément est pur, 
@@ -103,29 +100,29 @@ let pur clauses =
   in crible (List.flatten clauses)
 ;;
 
-(* remove_e_from_l : int -> list int -> list int
-   enlève un entier e et son opposé d'une liste d'entier*)
-
-
 (* solveur_dpll_rec : int list list -> int list -> int list option *)
 let rec solveur_dpll_rec clauses interpretation =
   (* l'ensemble vide de clauses est satisfiable *)
   if clauses = [] then Some interpretation else
     (* un clause vide n'est jamais satisfiable *)
     if List.mem [] clauses then None else
-    try Some(unitaire clauses) with
-      |lit-> solveur_dpll_rec (simplifie (value lit) clauses) (Some lit::interpretation)
-      |Not_found -> try Some (pur clauses) with 
-        |lit -> (solveur_dpll_rec (simplifie lit clauses) (lit::interpretation)) 
-        | _ -> let lit = hd (hd clauses) in
+    match ( try Some(unitaire clauses) with Not_found -> None) with
+      | Some lit-> solveur_dpll_rec (simplifie (lit) clauses) (lit::interpretation)
+      | None -> match (try Some(pur clauses) with Failure "pas de littéral pur" -> None) with 
+        | Some lit -> (solveur_dpll_rec (simplifie lit clauses) (lit::interpretation)) 
+        | None -> let lit = hd (hd clauses) in
               let branche = solveur_dpll_rec (simplifie lit clauses) (lit::interpretation) in
               match branche with
               | None -> solveur_dpll_rec (simplifie (-lit) clauses) ((-lit)::interpretation)
               | _    -> branche
     
     
-;;  
+;; 
 
+match (try Some(unitaire exemple_7_2) with Not_found -> None) 
+with
+| Some lit -> lit
+| None -> 0;;
         
 
 
