@@ -80,7 +80,13 @@ let rec unitaire clauses =
   | [] -> raise Not_found
   | [lit]::r -> lit
   | _::tl -> unitaire tl
+
 ;;
+
+let remove_e_from_l e l =
+  filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
+;;
+
 (* pur : int list list -> int
     - si `clauses' contient au moins un littéral pur, retourne
       ce littéral ;
@@ -99,9 +105,6 @@ let pur clauses =
 
 (* remove_e_from_l : int -> list int -> list int
    enlève un entier e et son opposé d'une liste d'entier*)
-let remove_e_from_l e l =
-  filter_map(fun x -> if (e = x || e = -x) then None else Some(x) ) l
-;;
 
 
 (* solveur_dpll_rec : int list list -> int list -> int list option *)
@@ -110,15 +113,23 @@ let rec solveur_dpll_rec clauses interpretation =
   if clauses = [] then Some interpretation else
     (* un clause vide n'est jamais satisfiable *)
     if List.mem [] clauses then None else
-    try Some(solveur_dpll_rec (simplifie (unitaire clauses) clauses) ((unitaire clauses)::interpretation)) with
-      | _ -> try Some(solveur_dpll_rec (simplifie (pur clauses) clauses) ((pur clauses)::interpretation)) with 
-        | _ -> clauses interpretation
-;;
+    try Some(unitaire clauses) with
+      |lit-> solveur_dpll_rec (simplifie (value lit) clauses) (Some lit::interpretation)
+      |Not_found -> try Some (pur clauses) with 
+        |lit -> (solveur_dpll_rec (simplifie lit clauses) (lit::interpretation)) 
+        | _ -> let lit = hd (hd clauses) in
+              let branche = solveur_dpll_rec (simplifie lit clauses) (lit::interpretation) in
+              match branche with
+              | None -> solveur_dpll_rec (simplifie (-lit) clauses) ((-lit)::interpretation)
+              | _    -> branche
+    
+    
+;;  
 
         
 
 
-let () = print_modele (solveur_dpll_rec exemple_7_2 [])
+let () = print_modele (solveur_dpll_rec exemple_7_2 []);;
 (* tests *)
 (* let () = print_modele (solveur_dpll_rec systeme []) *)
 (* let () = print_modele (solveur_dpll_rec coloriage []) *)
